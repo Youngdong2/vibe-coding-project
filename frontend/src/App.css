@@ -257,3 +257,146 @@ body {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+a.card-button {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
+
+/* Settings Page */
+.settings-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.settings-header {
+  background: white;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.back-link {
+  color: #4a90d9;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.settings-main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.settings-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.settings-section h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.section-description {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0 0 1.5rem;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-error {
+  background-color: #fee;
+  color: #c00;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.form-success {
+  background-color: #efe;
+  color: #060;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.key-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-active {
+  background-color: #e6f7e6;
+  color: #2e7d32;
+}
+
+.form-group label .status-badge {
+  margin-left: 0.5rem;
+}
+
+.save-button {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #4a90d9;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #357abd;
+}
+
+.save-button:disabled {
+  background-color: #a0c4e8;
+  cursor: not-allowed;
+}
+
+.delete-button {
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  color: #c00;
+  border: 1px solid #c00;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #fee;
+}

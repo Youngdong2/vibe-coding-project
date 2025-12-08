@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function HomePage() {
@@ -41,9 +42,9 @@ export default function HomePage() {
           <div className="action-card">
             <h3>설정</h3>
             <p>API 키 및 Confluence 연동을 설정하세요.</p>
-            <button className="card-button" disabled>
-              준비 중
-            </button>
+            <Link to="/settings" className="card-button">
+              설정하기
+            </Link>
           </div>
         </div>
       </main>

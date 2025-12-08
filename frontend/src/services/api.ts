@@ -55,3 +55,69 @@ export const authApi = {
     return handleResponse(response);
   },
 };
+
+interface SettingsResponse {
+  has_openai_key: boolean;
+  has_confluence_token: boolean;
+  confluence_site_url: string | null;
+  confluence_space_key: string | null;
+  confluence_parent_page_id: string | null;
+}
+
+function getAuthHeader(): { Authorization: string } | Record<string, never> {
+  const tokens = localStorage.getItem('auth_tokens');
+  if (tokens) {
+    const { access_token } = JSON.parse(tokens);
+    return { Authorization: `Bearer ${access_token}` };
+  }
+  return {};
+}
+
+export const settingsApi = {
+  async getSettings(): Promise<SettingsResponse> {
+    const response = await fetch(`${API_URL}/api/settings`, {
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse<SettingsResponse>(response);
+  },
+
+  async saveOpenAIKey(apiKey: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_URL}/api/settings/openai-key`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify({ api_key: apiKey }),
+    });
+    return handleResponse(response);
+  },
+
+  async validateOpenAIKey(apiKey: string): Promise<{ valid: boolean; message: string }> {
+    const response = await fetch(`${API_URL}/api/settings/validate-openai-key`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey }),
+    });
+    return handleResponse(response);
+  },
+
+  async deleteOpenAIKey(): Promise<{ message: string }> {
+    const response = await fetch(`${API_URL}/api/settings/openai-key`, {
+      method: 'DELETE',
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(response);
+  },
+
+  async saveConfluenceSettings(settings: {
+    api_token: string;
+    site_url: string;
+    space_key: string;
+    parent_page_id?: string;
+  }): Promise<{ message: string }> {
+    const response = await fetch(`${API_URL}/api/settings/confluence`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify(settings),
+    });
+    return handleResponse(response);
+  },
+};

@@ -19,13 +19,13 @@
 - [x] 인증 상태 관리 (Context/Store)
 - [x] 보호된 라우트 구현
 
-### Phase 3: 설정 페이지 🔲
-- [ ] 설정 페이지 레이아웃
-- [ ] OpenAI API Key 등록 UI
-- [ ] OpenAI API Key 저장 API
-- [ ] API Key 유효성 검증
-- [ ] Confluence 설정 UI
-- [ ] Confluence 설정 저장 API
+### Phase 3: 설정 페이지 ✅
+- [x] 설정 페이지 레이아웃
+- [x] OpenAI API Key 등록 UI
+- [x] OpenAI API Key 저장 API
+- [x] API Key 유효성 검증
+- [x] Confluence 설정 UI
+- [x] Confluence 설정 저장 API
 
 ### Phase 4: 회의록 기본 기능 🔲
 - [ ] 회의록 목록 페이지
@@ -80,15 +80,15 @@
 
 ## 현재 작업
 
-**Phase 2: 인증 시스템** 완료
+**Phase 3: 설정 페이지** 완료
 
 ---
 
 ## 다음 할 일
 
-1. Phase 3: 설정 페이지 시작
-2. 설정 페이지 레이아웃 구현
-3. OpenAI API Key 등록 UI
+1. Phase 4: 회의록 기본 기능 시작
+2. Supabase에 settings, meetings 테이블 생성 필요
+3. 회의록 목록 페이지 구현
 
 ---
 
@@ -96,3 +96,4 @@
 
 - Supabase 프로젝트 생성 필요 (https://supabase.com)
 - `.env` 파일에 Supabase URL, Key 설정 필요
+- settings 테이블 스키마 필요 (user_id, openai_api_key, confluence_* 필드)
