@@ -7,6 +7,7 @@ supabase==2.11.0
 
 # Settings
 pydantic-settings==2.7.0
+email-validator==2.2.0
 
 # OpenAI
 openai==1.58.1
