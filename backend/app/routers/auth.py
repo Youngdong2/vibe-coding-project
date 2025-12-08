@@ -22,7 +22,15 @@ class AuthResponse(BaseModel):
     user: dict
 
 
-@router.post("/register", response_model=AuthResponse)
+class RegisterResponse(BaseModel):
+    message: str
+    user: dict | None = None
+    requires_email_verification: bool = False
+    access_token: str | None = None
+    refresh_token: str | None = None
+
+
+@router.post("/register", response_model=RegisterResponse)
 async def register(request: SignUpRequest):
     """회원가입"""
     supabase = get_supabase_client()
@@ -41,17 +49,35 @@ async def register(request: SignUpRequest):
         if response.user is None:
             raise HTTPException(status_code=400, detail="회원가입에 실패했습니다.")
 
-        return AuthResponse(
-            access_token=response.session.access_token,
-            refresh_token=response.session.refresh_token,
+        # 이메일 인증이 필요한 경우 session이 None
+        if response.session is None:
+            return RegisterResponse(
+                message="회원가입이 완료되었습니다. 이메일을 확인하여 인증을 완료해주세요.",
+                user={
+                    "id": str(response.user.id),
+                    "email": response.user.email,
+                    "name": request.name
+                },
+                requires_email_verification=True
+            )
+
+        # 이메일 인증이 필요 없는 경우 바로 로그인
+        return RegisterResponse(
+            message="회원가입이 완료되었습니다.",
             user={
                 "id": str(response.user.id),
                 "email": response.user.email,
                 "name": request.name
-            }
+            },
+            requires_email_verification=False,
+            access_token=response.session.access_token,
+            refresh_token=response.session.refresh_token
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        error_msg = str(e)
+        if "User already registered" in error_msg:
+            raise HTTPException(status_code=400, detail="이미 등록된 이메일입니다.")
+        raise HTTPException(status_code=400, detail=error_msg)
 
 
 @router.post("/login", response_model=AuthResponse)

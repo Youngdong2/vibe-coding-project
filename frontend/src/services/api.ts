@@ -10,6 +10,18 @@ interface AuthResponse {
   };
 }
 
+interface RegisterResponse {
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  } | null;
+  requires_email_verification: boolean;
+  access_token: string | null;
+  refresh_token: string | null;
+}
+
 interface ApiError {
   detail: string;
 }
@@ -23,13 +35,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 export const authApi = {
-  async register(email: string, password: string, name: string): Promise<AuthResponse> {
+  async register(email: string, password: string, name: string): Promise<RegisterResponse> {
     const response = await fetch(`${API_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, name }),
     });
-    return handleResponse<AuthResponse>(response);
+    return handleResponse<RegisterResponse>(response);
   },
 
   async login(email: string, password: string): Promise<AuthResponse> {

@@ -8,11 +8,16 @@ interface User {
   name: string;
 }
 
+interface RegisterResult {
+  requiresEmailVerification: boolean;
+  message: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<RegisterResult>;
   logout: () => void;
 }
 
@@ -75,13 +80,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user);
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string): Promise<RegisterResult> => {
     const response = await authApi.register(email, password, name);
-    setStoredTokens({
-      access_token: response.access_token,
-      refresh_token: response.refresh_token,
-    });
-    setUser(response.user);
+
+    // 이메일 인증이 필요하지 않은 경우에만 토큰 저장
+    if (!response.requires_email_verification && response.access_token && response.refresh_token) {
+      setStoredTokens({
+        access_token: response.access_token,
+        refresh_token: response.refresh_token,
+      });
+      setUser(response.user);
+    }
+
+    return {
+      requiresEmailVerification: response.requires_email_verification,
+      message: response.message,
+    };
   };
 
   const logout = () => {

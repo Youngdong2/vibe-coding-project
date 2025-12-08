@@ -49,6 +49,21 @@ body {
   font-size: 0.875rem;
 }
 
+.auth-success {
+  background-color: #e6f7e6;
+  color: #2e7d32;
+  padding: 1.25rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-success a {
+  color: #4a90d9;
+  font-weight: 500;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

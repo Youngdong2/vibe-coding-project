@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
 
     if (password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
@@ -30,8 +32,13 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await register(email, password, name);
-      navigate('/');
+      const result = await register(email, password, name);
+
+      if (result.requiresEmailVerification) {
+        setSuccessMessage(result.message);
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
     } finally {
@@ -47,7 +54,16 @@ export default function RegisterPage() {
 
         {error && <div className="auth-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        {successMessage && (
+          <div className="auth-success">
+            <p>{successMessage}</p>
+            <p style={{ marginTop: '10px' }}>
+              <Link to="/login">로그인 페이지로 이동</Link>
+            </p>
+          </div>
+        )}
+
+        {!successMessage && <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="name">이름</label>
             <input
@@ -103,11 +119,13 @@ export default function RegisterPage() {
           <button type="submit" className="auth-button" disabled={isSubmitting}>
             {isSubmitting ? '가입 중...' : '회원가입'}
           </button>
-        </form>
+        </form>}
 
-        <p className="auth-link">
-          이미 계정이 있으신가요? <Link to="/login">로그인</Link>
-        </p>
+        {!successMessage && (
+          <p className="auth-link">
+            이미 계정이 있으신가요? <Link to="/login">로그인</Link>
+          </p>
+        )}
       </div>
     </div>
   );
