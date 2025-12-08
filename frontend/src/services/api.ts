@@ -133,3 +133,73 @@ export const settingsApi = {
     return handleResponse(response);
   },
 };
+
+// 회의록 관련 타입
+export interface Meeting {
+  id: string;
+  user_id: string;
+  title: string;
+  date: string;
+  audio_url: string | null;
+  transcript: string | null;
+  summary: string | null;
+  speaker_data: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MeetingCreate {
+  title: string;
+  date?: string;
+  transcript?: string;
+  summary?: string;
+}
+
+export interface MeetingUpdate {
+  title?: string;
+  transcript?: string;
+  summary?: string;
+}
+
+export const meetingsApi = {
+  async getMeetings(limit = 20, offset = 0): Promise<{ meetings: Meeting[]; count: number }> {
+    const response = await fetch(
+      `${API_URL}/api/meetings?limit=${limit}&offset=${offset}`,
+      { headers: { ...getAuthHeader() } }
+    );
+    return handleResponse(response);
+  },
+
+  async getMeeting(id: string): Promise<Meeting> {
+    const response = await fetch(`${API_URL}/api/meetings/${id}`, {
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(response);
+  },
+
+  async createMeeting(meeting: MeetingCreate): Promise<Meeting> {
+    const response = await fetch(`${API_URL}/api/meetings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify(meeting),
+    });
+    return handleResponse(response);
+  },
+
+  async updateMeeting(id: string, meeting: MeetingUpdate): Promise<Meeting> {
+    const response = await fetch(`${API_URL}/api/meetings/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify(meeting),
+    });
+    return handleResponse(response);
+  },
+
+  async deleteMeeting(id: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_URL}/api/meetings/${id}`, {
+      method: 'DELETE',
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(response);
+  },
+};

@@ -26,17 +26,17 @@ export default function HomePage() {
           <div className="action-card">
             <h3>새 회의록 작성</h3>
             <p>음성 녹음을 시작하여 새로운 회의록을 만드세요.</p>
-            <button className="card-button" disabled>
-              준비 중
-            </button>
+            <Link to="/meetings/new" className="card-button">
+              새 회의록
+            </Link>
           </div>
 
           <div className="action-card">
             <h3>회의록 목록</h3>
             <p>저장된 회의록을 확인하고 관리하세요.</p>
-            <button className="card-button" disabled>
-              준비 중
-            </button>
+            <Link to="/meetings" className="card-button">
+              목록 보기
+            </Link>
           </div>
 
           <div className="action-card">

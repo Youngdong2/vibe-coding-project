@@ -5,6 +5,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
+import MeetingsPage from './pages/MeetingsPage';
+import MeetingDetailPage from './pages/MeetingDetailPage';
+import NewMeetingPage from './pages/NewMeetingPage';
 import './App.css';
 
 function App() {
@@ -27,6 +30,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meetings"
+            element={
+              <ProtectedRoute>
+                <MeetingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meetings/new"
+            element={
+              <ProtectedRoute>
+                <NewMeetingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meetings/:id"
+            element={
+              <ProtectedRoute>
+                <MeetingDetailPage />
               </ProtectedRoute>
             }
           />
