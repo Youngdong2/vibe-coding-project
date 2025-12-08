@@ -18,6 +18,7 @@
 - [x] 회원가입 페이지 UI
 - [x] 인증 상태 관리 (Context/Store)
 - [x] 보호된 라우트 구현
+- [x] 이메일 인증 처리 개선
 
 ### Phase 3: 설정 페이지 ✅
 - [x] 설정 페이지 레이아웃
@@ -27,12 +28,12 @@
 - [x] Confluence 설정 UI
 - [x] Confluence 설정 저장 API
 
-### Phase 4: 회의록 기본 기능 🔲
-- [ ] 회의록 목록 페이지
-- [ ] 회의록 상세 페이지
-- [ ] 새 회의록 생성
-- [ ] 회의록 수정
-- [ ] 회의록 삭제
+### Phase 4: 회의록 기본 기능 ✅
+- [x] 회의록 목록 페이지
+- [x] 회의록 상세 페이지
+- [x] 새 회의록 생성
+- [x] 회의록 수정
+- [x] 회의록 삭제
 
 ### Phase 5: 음성 녹음 및 STT 🔲
 - [ ] 녹음 페이지 레이아웃
@@ -75,25 +76,34 @@
 | # | 커밋 메시지 | 해시 | 날짜 |
 |---|------------|------|------|
 | 1 | init: 프로젝트 구조 생성 | ea38631 | 2025-12-08 |
+| 2 | docs: 개발 진행 현황 문서 추가 | 53eee69 | 2025-12-08 |
+| 3 | feat: 인증 시스템 구현 | 73894e0 | 2025-12-08 |
+| 4 | docs: 상세 화면 기획 추가 | 3190581 | 2025-12-08 |
+| 5 | fix: TypeScript 빌드 에러 및 email-validator 의존성 수정 | 8d05234 | 2025-12-08 |
+| 6 | feat: 설정 페이지 구현 (OpenAI API Key, Confluence 연동) | ccd085a | 2025-12-08 |
+| 7 | fix: 이메일 인증 처리 및 CORS 설정 수정 | 3f8a544 | 2025-12-08 |
+| 8 | feat: Phase 4 회의록 기본 기능 구현 | 21deb1d | 2025-12-08 |
 
 ---
 
 ## 현재 작업
 
-**Phase 3: 설정 페이지** 완료
+**Phase 4: 회의록 기본 기능** 완료
 
 ---
 
 ## 다음 할 일
 
-1. Phase 4: 회의록 기본 기능 시작
-2. Supabase에 settings, meetings 테이블 생성 필요
-3. 회의록 목록 페이지 구현
+1. Phase 5: 음성 녹음 및 STT 시작
+2. MediaRecorder API로 브라우저 녹음 구현
+3. Supabase Storage에 음성 파일 업로드
+4. OpenAI Whisper API 연동
 
 ---
 
 ## 메모
 
-- Supabase 프로젝트 생성 필요 (https://supabase.com)
-- `.env` 파일에 Supabase URL, Key 설정 필요
-- settings 테이블 스키마 필요 (user_id, openai_api_key, confluence_* 필드)
+- Supabase 프로젝트 설정 완료
+- 이메일 인증 비활성화 상태 (Supabase Dashboard에서 설정)
+- meetings 테이블 RLS 정책 적용됨
+- settings 테이블 RLS 정책 적용됨
