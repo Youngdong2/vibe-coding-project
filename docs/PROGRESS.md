@@ -12,12 +12,12 @@
 - [x] Supabase 클라이언트 설정 (frontend)
 - [x] 환경변수 설정 (.env.example)
 
-### Phase 2: 인증 시스템 🔲
-- [ ] Supabase Auth 연동 (backend)
-- [ ] 로그인 페이지 UI
-- [ ] 회원가입 페이지 UI
-- [ ] 인증 상태 관리 (Context/Store)
-- [ ] 보호된 라우트 구현
+### Phase 2: 인증 시스템 ✅
+- [x] Supabase Auth 연동 (backend)
+- [x] 로그인 페이지 UI
+- [x] 회원가입 페이지 UI
+- [x] 인증 상태 관리 (Context/Store)
+- [x] 보호된 라우트 구현
 
 ### Phase 3: 설정 페이지 🔲
 - [ ] 설정 페이지 레이아웃
@@ -80,15 +80,15 @@
 
 ## 현재 작업
 
-**Phase 2: 인증 시스템** 시작 예정
+**Phase 2: 인증 시스템** 완료
 
 ---
 
 ## 다음 할 일
 
-1. Supabase Auth 연동 (backend)
-2. 로그인 페이지 UI
-3. 회원가입 페이지 UI
+1. Phase 3: 설정 페이지 시작
+2. 설정 페이지 레이아웃 구현
+3. OpenAI API Key 등록 UI
 
 ---
 

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import auth
 
 app = FastAPI(
     title="Meeting Minutes API",
@@ -25,3 +26,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+
+# 라우터 등록
+app.include_router(auth.router)
