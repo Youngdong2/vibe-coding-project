@@ -43,8 +43,11 @@ class UploadResponse(BaseModel):
 
 async def get_space_id_from_key(client: httpx.AsyncClient, site_url: str, auth_header: str, space_key: str) -> str:
     """Space Key로 Space ID(숫자) 조회"""
+    url = f"{site_url.rstrip('/')}/wiki/api/v2/spaces"
+    print(f"[Confluence] Space 조회 URL: {url}, space_key: {space_key}")
+
     response = await client.get(
-        f"{site_url.rstrip('/')}/wiki/api/v2/spaces",
+        url,
         params={"keys": space_key},
         headers={
             "Authorization": f"Basic {auth_header}",
@@ -53,13 +56,18 @@ async def get_space_id_from_key(client: httpx.AsyncClient, site_url: str, auth_h
         timeout=10.0
     )
 
+    print(f"[Confluence] Space 조회 응답 코드: {response.status_code}")
+
     if response.status_code != 200:
+        error_text = response.text
+        print(f"[Confluence] Space 조회 실패: {response.status_code} - {error_text}")
         raise HTTPException(
             status_code=400,
-            detail=f"Space '{space_key}'를 찾을 수 없습니다. Space Key를 확인해주세요."
+            detail=f"Space '{space_key}'를 찾을 수 없습니다. (응답: {response.status_code}) - {error_text[:200]}"
         )
 
     data = response.json()
+    print(f"[Confluence] Space 조회 결과: {data}")
     results = data.get("results", [])
 
     if not results:
@@ -108,7 +116,9 @@ async def upload_to_confluence(
     authorization: str = Header(None)
 ):
     """회의록을 Confluence 페이지로 업로드"""
+    print(f"[Confluence] 업로드 요청 시작 - meeting_id: {request.meeting_id}")
     user_id = get_user_id_from_token(authorization)
+    print(f"[Confluence] user_id: {user_id}")
     meeting_id = request.meeting_id
 
     supabase = get_supabase_admin_client()
@@ -140,6 +150,9 @@ async def upload_to_confluence(
     site_url = settings.get("confluence_site_url")
     space_key = settings.get("confluence_space_key")
     parent_page_id = settings.get("confluence_parent_page_id")
+
+    print(f"[Confluence] 설정 조회 완료 - site_url: {site_url}, space_key: {space_key}, parent_page_id: {parent_page_id}")
+    print(f"[Confluence] API 토큰 존재: {bool(encrypted_token)}")
 
     if not encrypted_token or not site_url or not space_key:
         raise HTTPException(status_code=400, detail="Confluence 설정이 완료되지 않았습니다. 설정 페이지에서 모든 정보를 입력해주세요.")
