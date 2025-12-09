@@ -268,3 +268,28 @@ export const sttApi = {
     return handleResponse(response);
   },
 };
+
+// 요약 관련 타입
+export interface SummaryResponse {
+  summary: string;
+  meeting_id: string;
+  generated_at: string;
+}
+
+export const summaryApi = {
+  async generateSummary(meetingId: string, regenerate = false): Promise<SummaryResponse> {
+    const response = await fetch(`${API_URL}/api/summary/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify({ meeting_id: meetingId, regenerate }),
+    });
+    return handleResponse(response);
+  },
+
+  async getSummary(meetingId: string): Promise<SummaryResponse> {
+    const response = await fetch(`${API_URL}/api/summary/${meetingId}`, {
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(response);
+  },
+};

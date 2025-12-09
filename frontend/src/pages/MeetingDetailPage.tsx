@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { meetingsApi, sttApi } from '../services/api';
+import { meetingsApi, sttApi, summaryApi } from '../services/api';
 import type { Meeting, SpeakerData, SpeakerSegment } from '../services/api';
 import AudioRecorder from '../components/AudioRecorder';
+import ReactMarkdown from 'react-markdown';
 
 // 화자별 색상 팔레트
 const SPEAKER_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -73,6 +74,7 @@ export default function MeetingDetailPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showRecorder, setShowRecorder] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -167,6 +169,24 @@ export default function MeetingDetailPage() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleGenerateSummary = async (regenerate = false) => {
+    if (!meeting) return;
+
+    try {
+      setIsGeneratingSummary(true);
+      const result = await summaryApi.generateSummary(meeting.id, regenerate);
+
+      setMeeting(prev => prev ? { ...prev, summary: result.summary } : null);
+      setEditSummary(result.summary);
+
+      alert(regenerate ? '요약이 재생성되었습니다!' : '요약이 생성되었습니다!');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '요약 생성에 실패했습니다.');
+    } finally {
+      setIsGeneratingSummary(false);
+    }
   };
 
   if (isLoading) {
@@ -294,8 +314,37 @@ export default function MeetingDetailPage() {
           )}
         </section>
 
-        <section className="meeting-section">
-          <h2>요약</h2>
+        <section className="meeting-section summary-section">
+          <div className="section-header">
+            <h2>요약</h2>
+            {!isEditing && (
+              <div className="summary-actions">
+                {meeting.summary ? (
+                  <button
+                    onClick={() => handleGenerateSummary(true)}
+                    className="regenerate-button"
+                    disabled={isGeneratingSummary || !meeting.transcript}
+                  >
+                    {isGeneratingSummary ? '재생성 중...' : '재생성'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleGenerateSummary(false)}
+                    className="generate-button"
+                    disabled={isGeneratingSummary || !meeting.transcript}
+                  >
+                    {isGeneratingSummary ? '생성 중...' : 'AI 요약 생성'}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+          {isGeneratingSummary && (
+            <div className="generating-indicator">
+              <div className="spinner" />
+              <span>AI가 회의 내용을 분석하고 있습니다...</span>
+            </div>
+          )}
           {isEditing ? (
             <textarea
               value={editSummary}
@@ -305,8 +354,16 @@ export default function MeetingDetailPage() {
               rows={6}
             />
           ) : (
-            <div className="meeting-content">
-              {meeting.summary || <span className="empty-text">요약이 없습니다.</span>}
+            <div className="meeting-content summary-content">
+              {meeting.summary ? (
+                <ReactMarkdown>{meeting.summary}</ReactMarkdown>
+              ) : (
+                <span className="empty-text">
+                  {meeting.transcript
+                    ? '요약이 없습니다. "AI 요약 생성" 버튼을 눌러 자동으로 생성해보세요.'
+                    : '먼저 음성을 녹음하거나 전문을 입력해주세요.'}
+                </span>
+              )}
             </div>
           )}
         </section>

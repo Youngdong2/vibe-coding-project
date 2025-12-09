@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, settings, meetings, stt
+from app.routers import auth, settings, meetings, stt, summary
 
 app = FastAPI(
     title="Meeting Minutes API",
@@ -38,3 +38,4 @@ app.include_router(auth.router)
 app.include_router(settings.router)
 app.include_router(meetings.router)
 app.include_router(stt.router)
+app.include_router(summary.router)
