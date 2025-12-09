@@ -88,12 +88,18 @@
 | 10 | feat: Phase 5 음성 녹음 및 STT 화자 분리 구현 | 7c79e89 | 2025-12-09 |
 | 11 | feat: Phase 6 AI 요약 기능 구현 | 42d8d19 | 2025-12-09 |
 | 12 | feat: Phase 7 검색 기능 구현 | 4521929 | 2025-12-09 |
+| 13 | docs: PROGRESS.md 업데이트 (Phase 7 완료) | b67e955 | 2025-12-09 |
+| 14 | feat: Phase 8 Confluence 연동 구현 | e84e0de | 2025-12-09 |
+| 15 | fix: Confluence API v2 Space ID 조회 및 설정 안내 개선 | 808ad1f | 2025-12-09 |
+| 16 | fix: Confluence 업로드 디버깅 로그 추가 | fee758b | 2025-12-09 |
 
 ---
 
 ## 현재 작업
 
-**Phase 8: Confluence 연동** 완료
+**Phase 8: Confluence 연동** ✅ 완료
+
+다음: Phase 9 부가 기능
 
 ---
 
