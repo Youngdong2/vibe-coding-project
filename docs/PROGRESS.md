@@ -45,10 +45,10 @@
 - [x] STT 결과 저장
 - [x] 화자별 색상 버블 UI
 
-### Phase 6: AI 요약 🔲
-- [ ] 요약 생성 API
-- [ ] 요약 UI 표시
-- [ ] 요약 재생성 기능
+### Phase 6: AI 요약 ✅
+- [x] 요약 생성 API (GPT-4o-mini)
+- [x] 요약 UI 표시 (ReactMarkdown)
+- [x] 요약 재생성 기능
 
 ### Phase 7: 검색 🔲
 - [ ] 검색 API (PostgreSQL FTS)
@@ -86,20 +86,21 @@
 | 8 | feat: Phase 4 회의록 기본 기능 구현 | 21deb1d | 2025-12-08 |
 | 9 | docs: PROGRESS.md 업데이트 (Phase 4 완료) | 2e883d8 | 2025-12-08 |
 | 10 | feat: Phase 5 음성 녹음 및 STT 화자 분리 구현 | 7c79e89 | 2025-12-09 |
+| 11 | feat: Phase 6 AI 요약 기능 구현 | 42d8d19 | 2025-12-09 |
 
 ---
 
 ## 현재 작업
 
-**Phase 5: 음성 녹음 및 STT** 완료
+**Phase 6: AI 요약** 완료
 
 ---
 
 ## 다음 할 일
 
-1. Phase 6: AI 요약 기능 구현
-2. GPT API로 회의 내용 요약 생성
-3. 요약 UI 표시 및 재생성 기능
+1. Phase 7: 검색 기능 구현
+2. PostgreSQL FTS로 회의록 검색 API
+3. 검색 UI 및 결과 하이라이트
 
 ---
 
