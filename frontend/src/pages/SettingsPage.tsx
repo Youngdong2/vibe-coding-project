@@ -177,6 +177,7 @@ export default function SettingsPage() {
                 required
                 disabled={isSavingConfluence}
               />
+              <small className="form-hint">Confluence 사이트 주소 (예: https://myteam.atlassian.net)</small>
             </div>
 
             <div className="form-group">
@@ -189,10 +190,19 @@ export default function SettingsPage() {
                 id="confluenceToken"
                 value={confluenceToken}
                 onChange={(e) => setConfluenceToken(e.target.value)}
-                placeholder={hasConfluenceToken ? '새 토큰으로 변경하려면 입력' : 'API Token 입력'}
+                placeholder={hasConfluenceToken ? '새 토큰으로 변경하려면 입력' : 'email@example.com:your-api-token'}
                 required={!hasConfluenceToken}
                 disabled={isSavingConfluence}
               />
+              <small className="form-hint">
+                형식: 이메일:API토큰 (예: user@company.com:ATATT3xF...)
+                <br />
+                API 토큰은{' '}
+                <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer">
+                  Atlassian 계정 설정
+                </a>
+                에서 생성할 수 있습니다.
+              </small>
             </div>
 
             <div className="form-group">
@@ -206,6 +216,9 @@ export default function SettingsPage() {
                 required
                 disabled={isSavingConfluence}
               />
+              <small className="form-hint">
+                URL에서 확인: .../wiki/spaces/<strong>SPACEKEY</strong>/...
+              </small>
             </div>
 
             <div className="form-group">
@@ -218,6 +231,9 @@ export default function SettingsPage() {
                 placeholder="예: 123456789"
                 disabled={isSavingConfluence}
               />
+              <small className="form-hint">
+                페이지 URL에서 확인: .../pages/<strong>123456789</strong>/...
+              </small>
             </div>
 
             <button type="submit" className="save-button" disabled={isSavingConfluence}>

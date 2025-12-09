@@ -41,6 +41,36 @@ class UploadResponse(BaseModel):
     message: str
 
 
+async def get_space_id_from_key(client: httpx.AsyncClient, site_url: str, auth_header: str, space_key: str) -> str:
+    """Space Key로 Space ID(숫자) 조회"""
+    response = await client.get(
+        f"{site_url.rstrip('/')}/wiki/api/v2/spaces",
+        params={"keys": space_key},
+        headers={
+            "Authorization": f"Basic {auth_header}",
+            "Accept": "application/json"
+        },
+        timeout=10.0
+    )
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Space '{space_key}'를 찾을 수 없습니다. Space Key를 확인해주세요."
+        )
+
+    data = response.json()
+    results = data.get("results", [])
+
+    if not results:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Space '{space_key}'를 찾을 수 없습니다. Space Key를 확인해주세요."
+        )
+
+    return str(results[0]["id"])
+
+
 def markdown_to_confluence_storage(markdown: str) -> str:
     """마크다운을 Confluence Storage Format으로 변환 (간단 버전)"""
     lines = markdown.split('\n')
@@ -146,31 +176,29 @@ async def upload_to_confluence(
     # site_url 형식: https://yoursite.atlassian.net
     api_url = f"{site_url.rstrip('/')}/wiki/api/v2/pages"
 
-    # 페이지 생성 payload
-    payload = {
-        "spaceId": space_key,  # v2 API는 spaceId 사용
-        "status": "current",
-        "title": f"[회의록] {title}",
-        "body": {
-            "representation": "storage",
-            "value": page_content
-        }
-    }
-
-    # parent page가 있으면 추가
-    if parent_page_id:
-        payload["parentId"] = parent_page_id
-
     try:
         async with httpx.AsyncClient() as client:
             # Basic Auth: email:api_token
-            # 주의: Confluence Cloud는 이메일 주소를 사용자명으로 사용
-            # 여기서는 사용자가 api_token에 "email:token" 형식으로 입력했다고 가정
-            # 또는 토큰만 입력한 경우 사용자 이메일 조회 필요
-
-            # API Token만 있는 경우 - email은 별도 저장 필요하지만,
-            # 현재 설정에서는 토큰에 email:token 형식 가정
+            # 사용자가 api_token에 "email:token" 형식으로 입력
             auth_header = base64.b64encode(api_token.encode()).decode()
+
+            # Space Key로 Space ID 조회
+            space_id = await get_space_id_from_key(client, site_url, auth_header, space_key)
+
+            # 페이지 생성 payload
+            payload = {
+                "spaceId": space_id,
+                "status": "current",
+                "title": f"[회의록] {title}",
+                "body": {
+                    "representation": "storage",
+                    "value": page_content
+                }
+            }
+
+            # parent page가 있으면 추가
+            if parent_page_id:
+                payload["parentId"] = parent_page_id
 
             response = await client.post(
                 api_url,
