@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { meetingsApi, sttApi, summaryApi } from '../services/api';
+import { meetingsApi, sttApi, summaryApi, confluenceApi } from '../services/api';
 import type { Meeting, SpeakerData, SpeakerSegment } from '../services/api';
 import AudioRecorder from '../components/AudioRecorder';
 import ReactMarkdown from 'react-markdown';
@@ -75,6 +75,8 @@ export default function MeetingDetailPage() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [showRecorder, setShowRecorder] = useState(false);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [isUploadingToConfluence, setIsUploadingToConfluence] = useState(false);
+  const [confluenceUrl, setConfluenceUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -186,6 +188,24 @@ export default function MeetingDetailPage() {
       alert(err instanceof Error ? err.message : '요약 생성에 실패했습니다.');
     } finally {
       setIsGeneratingSummary(false);
+    }
+  };
+
+  const handleUploadToConfluence = async () => {
+    if (!meeting) return;
+
+    try {
+      setIsUploadingToConfluence(true);
+      const result = await confluenceApi.uploadToConfluence(meeting.id);
+
+      if (result.success) {
+        setConfluenceUrl(result.page_url);
+        alert(`Confluence 페이지가 생성되었습니다!\n${result.page_url}`);
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Confluence 업로드에 실패했습니다.');
+    } finally {
+      setIsUploadingToConfluence(false);
     }
   };
 
@@ -404,6 +424,46 @@ export default function MeetingDetailPage() {
               )}
             </div>
           )}
+        </section>
+
+        {/* Confluence 업로드 섹션 */}
+        <section className="meeting-section confluence-section">
+          <div className="section-header">
+            <h2>Confluence 연동</h2>
+          </div>
+          <div className="confluence-content">
+            {confluenceUrl ? (
+              <div className="confluence-success">
+                <span>Confluence 페이지가 생성되었습니다!</span>
+                <a
+                  href={confluenceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="confluence-link"
+                >
+                  페이지 보기 →
+                </a>
+              </div>
+            ) : (
+              <>
+                <p className="confluence-description">
+                  회의록을 Confluence 페이지로 업로드합니다.
+                  {!meeting.summary && !meeting.transcript && (
+                    <span className="confluence-warning">
+                      (요약 또는 전문이 필요합니다)
+                    </span>
+                  )}
+                </p>
+                <button
+                  onClick={handleUploadToConfluence}
+                  className="confluence-upload-button"
+                  disabled={isUploadingToConfluence || (!meeting.summary && !meeting.transcript)}
+                >
+                  {isUploadingToConfluence ? 'Confluence 업로드 중...' : 'Confluence 업로드'}
+                </button>
+              </>
+            )}
+          </div>
         </section>
       </main>
     </div>

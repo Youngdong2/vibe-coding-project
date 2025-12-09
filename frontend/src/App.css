@@ -1289,3 +1289,80 @@ a.card-button {
   margin: 0.75rem 0;
   color: #4b5563;
 }
+
+/* Confluence Section */
+.confluence-section {
+  border: 1px solid #e0e7ff;
+  background: linear-gradient(135deg, #fafbff 0%, #f0f4ff 100%);
+}
+
+.confluence-section h2 {
+  color: #1e40af;
+}
+
+.confluence-content {
+  padding: 0.5rem 0;
+}
+
+.confluence-description {
+  color: #4b5563;
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+}
+
+.confluence-warning {
+  display: block;
+  margin-top: 0.5rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.confluence-upload-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.confluence-upload-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.confluence-upload-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.confluence-success {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #047857;
+}
+
+.confluence-link {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.confluence-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}

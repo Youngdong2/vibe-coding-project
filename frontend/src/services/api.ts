@@ -305,3 +305,29 @@ export const summaryApi = {
     return handleResponse(response);
   },
 };
+
+// Confluence 관련 타입
+export interface ConfluenceUploadResponse {
+  success: boolean;
+  page_url: string;
+  page_id: string;
+  message: string;
+}
+
+export const confluenceApi = {
+  async uploadToConfluence(meetingId: string): Promise<ConfluenceUploadResponse> {
+    const response = await fetch(`${API_URL}/api/confluence/upload`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify({ meeting_id: meetingId }),
+    });
+    return handleResponse(response);
+  },
+
+  async testConnection(): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${API_URL}/api/confluence/test-connection`, {
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(response);
+  },
+};

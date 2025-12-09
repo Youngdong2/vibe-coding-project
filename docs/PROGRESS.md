@@ -55,10 +55,10 @@
 - [x] 검색 UI
 - [x] 검색 결과 하이라이트
 
-### Phase 8: Confluence 연동 🔲
-- [ ] Confluence 업로드 API
-- [ ] 업로드 버튼 및 UI
-- [ ] 업로드 결과 표시
+### Phase 8: Confluence 연동 ✅
+- [x] Confluence 업로드 API
+- [x] 업로드 버튼 및 UI
+- [x] 업로드 결과 표시
 
 ### Phase 9: 부가 기능 🔲
 - [ ] 음성 파일 재생 기능
@@ -93,15 +93,15 @@
 
 ## 현재 작업
 
-**Phase 7: 검색** 완료
+**Phase 8: Confluence 연동** 완료
 
 ---
 
 ## 다음 할 일
 
-1. Phase 8: Confluence 연동 기능 구현
-2. Confluence 업로드 API
-3. 업로드 버튼 및 결과 표시 UI
+1. Phase 9: 부가 기능 구현
+2. 음성 파일 재생 기능 개선
+3. 회의록 목록 페이지네이션
 
 ---
 
