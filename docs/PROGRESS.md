@@ -1,6 +1,6 @@
 # 개발 진행 현황
 
-> 마지막 업데이트: 2025-12-08
+> 마지막 업데이트: 2025-12-09
 
 ## 전체 진행률
 
@@ -35,14 +35,15 @@
 - [x] 회의록 수정
 - [x] 회의록 삭제
 
-### Phase 5: 음성 녹음 및 STT 🔲
-- [ ] 녹음 페이지 레이아웃
-- [ ] MediaRecorder API 연동
-- [ ] 녹음 시작/정지 기능
-- [ ] Supabase Storage 업로드
-- [ ] OpenAI STT API 연동
-- [ ] 화자 분리 결과 파싱
-- [ ] STT 결과 저장
+### Phase 5: 음성 녹음 및 STT ✅
+- [x] 녹음 페이지 레이아웃
+- [x] MediaRecorder API 연동
+- [x] 녹음 시작/일시정지/중지 기능
+- [x] Supabase Storage 업로드
+- [x] OpenAI gpt-4o-transcribe-diarize API 연동
+- [x] 화자 분리 결과 파싱 (diarized_json)
+- [x] STT 결과 저장
+- [x] 화자별 색상 버블 UI
 
 ### Phase 6: AI 요약 🔲
 - [ ] 요약 생성 API
@@ -83,21 +84,22 @@
 | 6 | feat: 설정 페이지 구현 (OpenAI API Key, Confluence 연동) | ccd085a | 2025-12-08 |
 | 7 | fix: 이메일 인증 처리 및 CORS 설정 수정 | 3f8a544 | 2025-12-08 |
 | 8 | feat: Phase 4 회의록 기본 기능 구현 | 21deb1d | 2025-12-08 |
+| 9 | docs: PROGRESS.md 업데이트 (Phase 4 완료) | 2e883d8 | 2025-12-08 |
+| 10 | feat: Phase 5 음성 녹음 및 STT 화자 분리 구현 | 7c79e89 | 2025-12-09 |
 
 ---
 
 ## 현재 작업
 
-**Phase 4: 회의록 기본 기능** 완료
+**Phase 5: 음성 녹음 및 STT** 완료
 
 ---
 
 ## 다음 할 일
 
-1. Phase 5: 음성 녹음 및 STT 시작
-2. MediaRecorder API로 브라우저 녹음 구현
-3. Supabase Storage에 음성 파일 업로드
-4. OpenAI Whisper API 연동
+1. Phase 6: AI 요약 기능 구현
+2. GPT API로 회의 내용 요약 생성
+3. 요약 UI 표시 및 재생성 기능
 
 ---
 
@@ -107,3 +109,5 @@
 - 이메일 인증 비활성화 상태 (Supabase Dashboard에서 설정)
 - meetings 테이블 RLS 정책 적용됨
 - settings 테이블 RLS 정책 적용됨
+- audio-files Storage 버킷 RLS 정책 적용됨
+- OpenAI SDK 2.9.0으로 업그레이드 (gpt-4o-transcribe-diarize 지원)
