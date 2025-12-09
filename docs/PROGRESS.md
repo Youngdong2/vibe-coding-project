@@ -50,10 +50,10 @@
 - [x] 요약 UI 표시 (ReactMarkdown)
 - [x] 요약 재생성 기능
 
-### Phase 7: 검색 🔲
-- [ ] 검색 API (PostgreSQL FTS)
-- [ ] 검색 UI
-- [ ] 검색 결과 하이라이트
+### Phase 7: 검색 ✅
+- [x] 검색 API (ILIKE 방식)
+- [x] 검색 UI
+- [x] 검색 결과 하이라이트
 
 ### Phase 8: Confluence 연동 🔲
 - [ ] Confluence 업로드 API
@@ -87,20 +87,21 @@
 | 9 | docs: PROGRESS.md 업데이트 (Phase 4 완료) | 2e883d8 | 2025-12-08 |
 | 10 | feat: Phase 5 음성 녹음 및 STT 화자 분리 구현 | 7c79e89 | 2025-12-09 |
 | 11 | feat: Phase 6 AI 요약 기능 구현 | 42d8d19 | 2025-12-09 |
+| 12 | feat: Phase 7 검색 기능 구현 | 4521929 | 2025-12-09 |
 
 ---
 
 ## 현재 작업
 
-**Phase 6: AI 요약** 완료
+**Phase 7: 검색** 완료
 
 ---
 
 ## 다음 할 일
 
-1. Phase 7: 검색 기능 구현
-2. PostgreSQL FTS로 회의록 검색 API
-3. 검색 UI 및 결과 하이라이트
+1. Phase 8: Confluence 연동 기능 구현
+2. Confluence 업로드 API
+3. 업로드 버튼 및 결과 표시 UI
 
 ---
 
