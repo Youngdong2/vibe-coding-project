@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional
-from app.database import get_supabase_client
+from app.database import get_supabase_client, get_supabase_admin_client
 from app.services.encryption import encrypt_value, decrypt_value
 import httpx
 
@@ -92,9 +92,9 @@ async def save_openai_key(request: OpenAIKeyRequest, authorization: str = Header
     except httpx.RequestError:
         raise HTTPException(status_code=400, detail="OpenAI API 연결에 실패했습니다.")
 
-    # 암호화하여 저장
+    # 암호화하여 저장 (admin client로 RLS 우회)
     encrypted_key = encrypt_value(request.api_key)
-    supabase = get_supabase_client()
+    supabase = get_supabase_admin_client()
 
     try:
         # upsert (있으면 업데이트, 없으면 삽입)
@@ -131,9 +131,9 @@ async def save_confluence_settings(request: ConfluenceSettingsRequest, authoriza
     """Confluence 설정 저장"""
     user_id = await get_current_user_id(authorization)
 
-    # 암호화하여 저장
+    # 암호화하여 저장 (admin client로 RLS 우회)
     encrypted_token = encrypt_value(request.api_token)
-    supabase = get_supabase_client()
+    supabase = get_supabase_admin_client()
 
     try:
         supabase.table("settings").upsert({

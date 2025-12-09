@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, settings, meetings
+from app.routers import auth, settings, meetings, stt
 
 app = FastAPI(
     title="Meeting Minutes API",
@@ -11,7 +11,12 @@ app = FastAPI(
 # CORS 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://192.168.230.104:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://localhost:5173",
+        "http://192.168.230.104:5173",
+        "https://192.168.230.104:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,3 +37,4 @@ async def health_check():
 app.include_router(auth.router)
 app.include_router(settings.router)
 app.include_router(meetings.router)
+app.include_router(stt.router)

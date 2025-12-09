@@ -134,6 +134,25 @@ export const settingsApi = {
   },
 };
 
+// 화자 분리 관련 타입
+export interface SpeakerSegment {
+  start: number;
+  end: number;
+  text: string;
+}
+
+export interface Speaker {
+  id: string;
+  name: string | null;
+  segments: SpeakerSegment[];
+}
+
+export interface SpeakerData {
+  speakers: Speaker[];
+  total_duration: number;
+  speaker_count: number;
+}
+
 // 회의록 관련 타입
 export interface Meeting {
   id: string;
@@ -143,7 +162,7 @@ export interface Meeting {
   audio_url: string | null;
   transcript: string | null;
   summary: string | null;
-  speaker_data: Record<string, unknown> | null;
+  speaker_data: SpeakerData | null;
   created_at: string;
   updated_at: string;
 }
@@ -199,6 +218,52 @@ export const meetingsApi = {
     const response = await fetch(`${API_URL}/api/meetings/${id}`, {
       method: 'DELETE',
       headers: { ...getAuthHeader() },
+    });
+    return handleResponse(response);
+  },
+};
+
+// STT 관련 타입
+export interface TranscriptionSegment {
+  speaker: string | null;
+  start: number;
+  end: number;
+  text: string;
+}
+
+export interface TranscriptionResult {
+  transcript: string;
+  audio_url: string | null;
+  duration: number | null;
+  segments: TranscriptionSegment[] | null;
+  speaker_data: SpeakerData | null;
+}
+
+export const sttApi = {
+  async transcribe(audioBlob: Blob, meetingId?: string): Promise<TranscriptionResult> {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+    if (meetingId) {
+      formData.append('meeting_id', meetingId);
+    }
+
+    const response = await fetch(`${API_URL}/api/stt/transcribe`, {
+      method: 'POST',
+      headers: { ...getAuthHeader() },
+      body: formData,
+    });
+    return handleResponse(response);
+  },
+
+  async uploadAudio(audioBlob: Blob, meetingId: string): Promise<{ audio_url: string; message: string }> {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
+    formData.append('meeting_id', meetingId);
+
+    const response = await fetch(`${API_URL}/api/stt/upload-audio`, {
+      method: 'POST',
+      headers: { ...getAuthHeader() },
+      body: formData,
     });
     return handleResponse(response);
   },

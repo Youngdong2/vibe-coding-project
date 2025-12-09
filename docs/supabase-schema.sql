@@ -81,5 +81,36 @@ CREATE TRIGGER update_meetings_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- 3. Storage 버킷 생성 (음성 파일용) - Supabase Dashboard > Storage에서 수동 생성 권장
--- INSERT INTO storage.buckets (id, name, public) VALUES ('audio', 'audio', false);
+-- 3. Storage 버킷 및 RLS 정책 (음성 파일용)
+-- Supabase Dashboard > Storage에서 'audio-files' 버킷을 먼저 생성한 후 아래 SQL 실행
+
+-- Storage RLS 정책: 사용자는 자신의 폴더에만 업로드/조회/삭제 가능
+-- 파일 경로 형식: {user_id}/{meeting_id}/{uuid}.webm
+
+CREATE POLICY "Users can upload own audio files"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'audio-files' AND
+  auth.uid()::text = (storage.foldername(name))[1]
+);
+
+CREATE POLICY "Users can view own audio files"
+ON storage.objects FOR SELECT
+USING (
+  bucket_id = 'audio-files' AND
+  auth.uid()::text = (storage.foldername(name))[1]
+);
+
+CREATE POLICY "Users can update own audio files"
+ON storage.objects FOR UPDATE
+USING (
+  bucket_id = 'audio-files' AND
+  auth.uid()::text = (storage.foldername(name))[1]
+);
+
+CREATE POLICY "Users can delete own audio files"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'audio-files' AND
+  auth.uid()::text = (storage.foldername(name))[1]
+);
