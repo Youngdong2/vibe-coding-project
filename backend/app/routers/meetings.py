@@ -76,6 +76,42 @@ async def get_meetings(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/search")
+async def search_meetings(
+    q: str,
+    authorization: str = Header(None),
+    limit: int = 20,
+    offset: int = 0
+):
+    """회의록 검색 (제목, 전문, 요약에서 검색)"""
+    user_id = get_user_id_from_token(authorization)
+    supabase = get_supabase_client()
+
+    if not q or len(q.strip()) < 1:
+        raise HTTPException(status_code=400, detail="검색어를 입력해주세요.")
+
+    query = q.strip()
+
+    try:
+        # ILIKE를 사용한 검색 (대소문자 구분 없음)
+        response = supabase.table("meetings") \
+            .select("*") \
+            .eq("user_id", user_id) \
+            .or_(f"title.ilike.%{query}%,transcript.ilike.%{query}%,summary.ilike.%{query}%") \
+            .order("date", desc=True) \
+            .range(offset, offset + limit - 1) \
+            .execute()
+
+        return {
+            "meetings": response.data,
+            "count": len(response.data),
+            "query": query
+        }
+    except Exception as e:
+        print(f"[Search] Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/{meeting_id}")
 async def get_meeting(
     meeting_id: str,

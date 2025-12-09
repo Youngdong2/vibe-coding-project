@@ -221,6 +221,18 @@ export const meetingsApi = {
     });
     return handleResponse(response);
   },
+
+  async searchMeetings(
+    query: string,
+    limit = 20,
+    offset = 0
+  ): Promise<{ meetings: Meeting[]; count: number; query: string }> {
+    const response = await fetch(
+      `${API_URL}/api/meetings/search?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
+      { headers: { ...getAuthHeader() } }
+    );
+    return handleResponse(response);
+  },
 };
 
 // STT 관련 타입

@@ -4,10 +4,35 @@ import { useAuth } from '../contexts/AuthContext';
 import { meetingsApi } from '../services/api';
 import type { Meeting } from '../services/api';
 
+// 검색어 하이라이트 컴포넌트
+function HighlightText({ text, query }: { text: string; query: string }) {
+  if (!query.trim()) {
+    return <>{text}</>;
+  }
+
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+
+  return (
+    <>
+      {parts.map((part, index) =>
+        regex.test(part) ? (
+          <mark key={index} className="search-highlight">{part}</mark>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
+
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchMode, setSearchMode] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -18,6 +43,7 @@ export default function MeetingsPage() {
   const loadMeetings = async () => {
     try {
       setIsLoading(true);
+      setSearchMode(false);
       const response = await meetingsApi.getMeetings();
       setMeetings(response.meetings);
     } catch (err) {
@@ -25,6 +51,38 @@ export default function MeetingsPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    const query = searchQuery.trim();
+    if (!query) {
+      loadMeetings();
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      setError('');
+      const response = await meetingsApi.searchMeetings(query);
+      setMeetings(response.meetings);
+      setSearchMode(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '검색에 실패했습니다.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchMode(false);
+    loadMeetings();
   };
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
@@ -76,6 +134,28 @@ export default function MeetingsPage() {
 
       <main className="meetings-main">
         <div className="meetings-toolbar">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="회의록 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              className="search-input"
+            />
+            <button
+              onClick={handleSearch}
+              className="search-button"
+              disabled={isSearching}
+            >
+              {isSearching ? '검색 중...' : '검색'}
+            </button>
+            {searchMode && (
+              <button onClick={clearSearch} className="clear-search-button">
+                초기화
+              </button>
+            )}
+          </div>
           <button
             onClick={() => navigate('/meetings/new')}
             className="new-meeting-button"
@@ -83,6 +163,12 @@ export default function MeetingsPage() {
             + 새 회의록
           </button>
         </div>
+
+        {searchMode && (
+          <div className="search-result-info">
+            <span>"{searchQuery}" 검색 결과: {meetings.length}건</span>
+          </div>
+        )}
 
         {error && <div className="error-message">{error}</div>}
 
@@ -102,7 +188,13 @@ export default function MeetingsPage() {
                 className="meeting-card"
               >
                 <div className="meeting-card-header">
-                  <h3 className="meeting-title">{meeting.title}</h3>
+                  <h3 className="meeting-title">
+                    {searchMode ? (
+                      <HighlightText text={meeting.title} query={searchQuery} />
+                    ) : (
+                      meeting.title
+                    )}
+                  </h3>
                   <button
                     onClick={(e) => handleDelete(meeting.id, e)}
                     className="delete-button-small"
@@ -114,7 +206,11 @@ export default function MeetingsPage() {
                 <p className="meeting-date">{formatDate(meeting.date)}</p>
                 {meeting.summary && (
                   <p className="meeting-summary">
-                    {truncateText(meeting.summary, 100)}
+                    {searchMode ? (
+                      <HighlightText text={truncateText(meeting.summary, 100)} query={searchQuery} />
+                    ) : (
+                      truncateText(meeting.summary, 100)
+                    )}
                   </p>
                 )}
               </Link>
