@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime, timedelta
 from app.database import get_supabase_client, get_supabase_admin_client
 from app.services.encryption import encrypt_value, decrypt_value
 import httpx
@@ -163,3 +164,95 @@ async def delete_openai_key(authorization: str = Header(None)):
         return {"message": "OpenAI API Key가 삭제되었습니다."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"삭제에 실패했습니다: {str(e)}")
+
+
+class CleanupRequest(BaseModel):
+    days: int = 90
+
+
+@router.post("/cleanup-old-audio")
+async def cleanup_old_audio(request: CleanupRequest, authorization: str = Header(None)):
+    """오래된 음성 파일 정리 (기본 90일)"""
+    user_id = await get_current_user_id(authorization)
+    supabase = get_supabase_admin_client()
+
+    # 삭제 기준일 계산
+    cutoff_date = (datetime.now() - timedelta(days=request.days)).isoformat()
+
+    try:
+        # 오래된 회의록 중 audio_url이 있는 것들 조회
+        meetings_response = supabase.table("meetings") \
+            .select("id, audio_url, date") \
+            .eq("user_id", user_id) \
+            .lt("date", cutoff_date) \
+            .not_.is_("audio_url", "null") \
+            .execute()
+
+        old_meetings = meetings_response.data
+        deleted_count = 0
+
+        for meeting in old_meetings:
+            audio_url = meeting.get("audio_url")
+            if audio_url:
+                # Storage에서 파일 삭제
+                # URL 형식: https://xxx.supabase.co/storage/v1/object/public/audio-files/user_id/filename
+                try:
+                    # URL에서 파일 경로 추출
+                    if "/audio-files/" in audio_url:
+                        file_path = audio_url.split("/audio-files/")[1]
+                        supabase.storage.from_("audio-files").remove([file_path])
+
+                        # 회의록의 audio_url을 null로 업데이트
+                        supabase.table("meetings") \
+                            .update({"audio_url": None}) \
+                            .eq("id", meeting["id"]) \
+                            .execute()
+
+                        deleted_count += 1
+                except Exception as e:
+                    print(f"[Cleanup] 파일 삭제 실패: {meeting['id']} - {e}")
+                    continue
+
+        return {
+            "message": f"{request.days}일 이상 된 음성 파일 {deleted_count}개가 삭제되었습니다.",
+            "deleted_count": deleted_count,
+            "total_found": len(old_meetings)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"정리에 실패했습니다: {str(e)}")
+
+
+@router.get("/audio-stats")
+async def get_audio_stats(authorization: str = Header(None)):
+    """음성 파일 통계 조회"""
+    user_id = await get_current_user_id(authorization)
+    supabase = get_supabase_client()
+
+    try:
+        # 전체 음성 파일이 있는 회의록 수
+        total_response = supabase.table("meetings") \
+            .select("id", count="exact") \
+            .eq("user_id", user_id) \
+            .not_.is_("audio_url", "null") \
+            .execute()
+
+        total_count = total_response.count if total_response.count else 0
+
+        # 90일 이상 된 음성 파일 수
+        cutoff_date = (datetime.now() - timedelta(days=90)).isoformat()
+        old_response = supabase.table("meetings") \
+            .select("id", count="exact") \
+            .eq("user_id", user_id) \
+            .lt("date", cutoff_date) \
+            .not_.is_("audio_url", "null") \
+            .execute()
+
+        old_count = old_response.count if old_response.count else 0
+
+        return {
+            "total_audio_files": total_count,
+            "old_audio_files": old_count,
+            "cutoff_days": 90
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"통계 조회에 실패했습니다: {str(e)}")

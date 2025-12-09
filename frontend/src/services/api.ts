@@ -132,6 +132,22 @@ export const settingsApi = {
     });
     return handleResponse(response);
   },
+
+  async getAudioStats(): Promise<{ total_audio_files: number; old_audio_files: number; cutoff_days: number }> {
+    const response = await fetch(`${API_URL}/api/settings/audio-stats`, {
+      headers: { ...getAuthHeader() },
+    });
+    return handleResponse(response);
+  },
+
+  async cleanupOldAudio(days = 90): Promise<{ message: string; deleted_count: number; total_found: number }> {
+    const response = await fetch(`${API_URL}/api/settings/cleanup-old-audio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+      body: JSON.stringify({ days }),
+    });
+    return handleResponse(response);
+  },
 };
 
 // 화자 분리 관련 타입
@@ -181,7 +197,7 @@ export interface MeetingUpdate {
 }
 
 export const meetingsApi = {
-  async getMeetings(limit = 20, offset = 0): Promise<{ meetings: Meeting[]; count: number }> {
+  async getMeetings(limit = 20, offset = 0): Promise<{ meetings: Meeting[]; count: number; total: number }> {
     const response = await fetch(
       `${API_URL}/api/meetings?limit=${limit}&offset=${offset}`,
       { headers: { ...getAuthHeader() } }
@@ -226,7 +242,7 @@ export const meetingsApi = {
     query: string,
     limit = 20,
     offset = 0
-  ): Promise<{ meetings: Meeting[]; count: number; query: string }> {
+  ): Promise<{ meetings: Meeting[]; count: number; total: number; query: string }> {
     const response = await fetch(
       `${API_URL}/api/meetings/search?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`,
       { headers: { ...getAuthHeader() } }

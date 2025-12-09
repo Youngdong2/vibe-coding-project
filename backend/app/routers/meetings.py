@@ -61,6 +61,15 @@ async def get_meetings(
     supabase = get_supabase_client()
 
     try:
+        # 전체 개수 조회
+        count_response = supabase.table("meetings") \
+            .select("id", count="exact") \
+            .eq("user_id", user_id) \
+            .execute()
+
+        total = count_response.count if count_response.count is not None else 0
+
+        # 페이지네이션된 목록 조회
         response = supabase.table("meetings") \
             .select("*") \
             .eq("user_id", user_id) \
@@ -70,7 +79,10 @@ async def get_meetings(
 
         return {
             "meetings": response.data,
-            "count": len(response.data)
+            "count": len(response.data),
+            "total": total,
+            "limit": limit,
+            "offset": offset
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -93,6 +105,15 @@ async def search_meetings(
     query = q.strip()
 
     try:
+        # 전체 개수 조회
+        count_response = supabase.table("meetings") \
+            .select("id", count="exact") \
+            .eq("user_id", user_id) \
+            .or_(f"title.ilike.%{query}%,transcript.ilike.%{query}%,summary.ilike.%{query}%") \
+            .execute()
+
+        total = count_response.count if count_response.count is not None else 0
+
         # ILIKE를 사용한 검색 (대소문자 구분 없음)
         response = supabase.table("meetings") \
             .select("*") \
@@ -105,6 +126,9 @@ async def search_meetings(
         return {
             "meetings": response.data,
             "count": len(response.data),
+            "total": total,
+            "limit": limit,
+            "offset": offset,
             "query": query
         }
     except Exception as e:

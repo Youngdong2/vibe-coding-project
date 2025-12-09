@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { meetingsApi, sttApi, summaryApi, confluenceApi } from '../services/api';
 import type { Meeting, SpeakerData, SpeakerSegment } from '../services/api';
 import AudioRecorder from '../components/AudioRecorder';
+import AudioPlayer from '../components/AudioPlayer';
 import ReactMarkdown from 'react-markdown';
 
 // 화자별 색상 팔레트
@@ -20,14 +21,25 @@ interface SpeakerBubbleProps {
   speaker: string;
   text: string;
   startTime: number;
+  endTime: number;
   speakerIndex: number;
+  isActive?: boolean;
+  onSeek?: (time: number) => void;
 }
 
-function SpeakerBubble({ speaker, text, startTime, speakerIndex }: SpeakerBubbleProps) {
+function SpeakerBubble({ speaker, text, startTime, speakerIndex, isActive, onSeek }: SpeakerBubbleProps) {
   const color = SPEAKER_COLORS[speakerIndex % SPEAKER_COLORS.length];
 
+  const handleClick = () => {
+    onSeek?.(startTime);
+  };
+
   return (
-    <div className="speaker-bubble" style={{ borderLeftColor: color }}>
+    <div
+      className={`speaker-bubble ${isActive ? 'active' : ''}`}
+      style={{ borderLeftColor: color }}
+      onClick={handleClick}
+    >
       <div className="speaker-header">
         <span className="speaker-name" style={{ color }}>{speaker}</span>
         <span className="speaker-timestamp">{formatTimestamp(startTime)}</span>
@@ -64,6 +76,7 @@ function getSortedSegments(speakerData: SpeakerData): SortedSegment[] {
 export default function MeetingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -77,6 +90,7 @@ export default function MeetingDetailPage() {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [isUploadingToConfluence, setIsUploadingToConfluence] = useState(false);
   const [confluenceUrl, setConfluenceUrl] = useState<string | null>(null);
+  const [currentAudioTime, setCurrentAudioTime] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -326,11 +340,11 @@ export default function MeetingDetailPage() {
           )}
 
           {meeting.audio_url && (
-            <div className="audio-player">
-              <audio controls src={meeting.audio_url}>
-                브라우저가 오디오 재생을 지원하지 않습니다.
-              </audio>
-            </div>
+            <AudioPlayer
+              src={meeting.audio_url}
+              ref={audioRef}
+              onTimeUpdate={setCurrentAudioTime}
+            />
           )}
         </section>
 
@@ -407,15 +421,26 @@ export default function MeetingDetailPage() {
             />
           ) : meeting.speaker_data && meeting.speaker_data.speakers.length > 0 ? (
             <div className="speaker-transcript">
-              {getSortedSegments(meeting.speaker_data).map((item, index) => (
-                <SpeakerBubble
-                  key={`${item.speaker}-${index}`}
-                  speaker={item.speaker}
-                  text={item.segment.text}
-                  startTime={item.segment.start}
-                  speakerIndex={item.speakerIndex}
-                />
-              ))}
+              {getSortedSegments(meeting.speaker_data).map((item, index) => {
+                const isActive = currentAudioTime >= item.segment.start && currentAudioTime < item.segment.end;
+                return (
+                  <SpeakerBubble
+                    key={`${item.speaker}-${index}`}
+                    speaker={item.speaker}
+                    text={item.segment.text}
+                    startTime={item.segment.start}
+                    endTime={item.segment.end}
+                    speakerIndex={item.speakerIndex}
+                    isActive={isActive}
+                    onSeek={(time) => {
+                      if (audioRef.current) {
+                        audioRef.current.currentTime = time;
+                        audioRef.current.play();
+                      }
+                    }}
+                  />
+                );
+              })}
             </div>
           ) : (
             <div className="meeting-content transcript">

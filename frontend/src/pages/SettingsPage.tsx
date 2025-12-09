@@ -23,6 +23,16 @@ export default function SettingsPage() {
   const [confluenceSuccess, setConfluenceSuccess] = useState('');
   const [isSavingConfluence, setIsSavingConfluence] = useState(false);
 
+  // 음성 파일 관리
+  const [audioStats, setAudioStats] = useState<{
+    total_audio_files: number;
+    old_audio_files: number;
+    cutoff_days: number;
+  } | null>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
+  const [cleanupMessage, setCleanupMessage] = useState('');
+
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -40,7 +50,41 @@ export default function SettingsPage() {
     };
 
     loadSettings();
+    loadAudioStats();
   }, []);
+
+  const loadAudioStats = async () => {
+    setIsLoadingStats(true);
+    try {
+      const stats = await settingsApi.getAudioStats();
+      setAudioStats(stats);
+    } catch (err) {
+      console.error('Failed to load audio stats:', err);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  const handleCleanup = async () => {
+    if (!audioStats || audioStats.old_audio_files === 0) return;
+
+    if (!confirm(`정말로 90일 이상 된 음성 파일 ${audioStats.old_audio_files}개를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+      return;
+    }
+
+    setIsCleaning(true);
+    setCleanupMessage('');
+    try {
+      const result = await settingsApi.cleanupOldAudio(90);
+      setCleanupMessage(result.message);
+      // 통계 다시 로드
+      await loadAudioStats();
+    } catch (err) {
+      setCleanupMessage(err instanceof Error ? err.message : '정리에 실패했습니다.');
+    } finally {
+      setIsCleaning(false);
+    }
+  };
 
   const handleSaveOpenAI = async (e: FormEvent) => {
     e.preventDefault();
@@ -240,6 +284,52 @@ export default function SettingsPage() {
               {isSavingConfluence ? '저장 중...' : '저장'}
             </button>
           </form>
+        </section>
+
+        {/* 음성 파일 관리 섹션 */}
+        <section className="settings-section storage-section">
+          <h2>음성 파일 관리</h2>
+          <p className="section-description">
+            저장된 음성 파일을 관리합니다. 오래된 파일을 삭제하여 저장 공간을 절약할 수 있습니다.
+          </p>
+
+          {isLoadingStats ? (
+            <div className="loading-inline">통계 로딩 중...</div>
+          ) : audioStats ? (
+            <div className="storage-stats">
+              <div className="stat-item">
+                <span className="stat-label">전체 음성 파일</span>
+                <span className="stat-value">{audioStats.total_audio_files}개</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">90일 이상 된 파일</span>
+                <span className="stat-value stat-warning">
+                  {audioStats.old_audio_files}개
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p className="empty-text">통계를 불러올 수 없습니다.</p>
+          )}
+
+          {cleanupMessage && (
+            <div className={cleanupMessage.includes('실패') ? 'form-error' : 'form-success'}>
+              {cleanupMessage}
+            </div>
+          )}
+
+          <div className="cleanup-actions">
+            <button
+              onClick={handleCleanup}
+              className="cleanup-button"
+              disabled={isCleaning || !audioStats || audioStats.old_audio_files === 0}
+            >
+              {isCleaning ? '정리 중...' : '90일 이상 된 음성 파일 삭제'}
+            </button>
+            <small className="form-hint">
+              삭제된 파일은 복구할 수 없습니다. 회의록의 전문(텍스트)은 유지됩니다.
+            </small>
+          </div>
         </section>
       </main>
     </div>
